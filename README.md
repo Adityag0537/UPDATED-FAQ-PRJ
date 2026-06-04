@@ -1,6 +1,6 @@
 # Samagama FAQ Portal
 
-Samagama FAQ Portal is a full-stack community FAQ and question-answer platform. Users can browse FAQs, ask questions, answer community questions, upvote content, report inappropriate content, and track their activity. Admins can moderate reports, edit/remove content, suspend/reactivate users, manage FAQ eligibility settings, and view analytics.
+Samagama FAQ Portal is a full-stack community FAQ and question-answer platform. Users can browse FAQs, ask questions, answer community questions, upvote content, report inappropriate content, track their activity, and view their Spurti Points (SP) statistics. Admins can moderate reports, edit/remove content, suspend/reactivate users, manage FAQ eligibility settings, and view analytics.
 
 ## Tech Stack
 
@@ -144,7 +144,7 @@ Because `server/server.js` calls the seed function during startup, this cleanup 
 - `/questions` - community questions
 - `/questions/:id` - question detail and answers
 - `/ask` - ask a question, login required
-- `/my-activity` - logged-in user activity
+- `/my-activity` - logged-in user activity with SP points, badge, questions, answers, accepted answers, upvotes, and view statistics
 - `/leaderboard` - SP points leaderboard
 - `/login` - login/register
 - `/admin/moderation` - admin moderation dashboard
@@ -162,6 +162,7 @@ Common routes:
 - `POST /auth/register`
 - `POST /auth/login`
 - `GET /users/me`
+- `GET /users/me/activity-summary`
 - `GET /users/me/questions`
 - `GET /users/me/answers`
 - `GET /questions`
