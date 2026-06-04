@@ -3,6 +3,7 @@ const auth = require("../middleware/auth");
 const User = require("../models/User");
 const { formatUserResponse } = require("../utils/userResponse");
 const {
+  getMyActivitySummary,
   getMyQuestions,
   getMyAnswers,
 } = require("../controllers/activityController");
@@ -25,6 +26,7 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+router.get("/me/activity-summary", auth, getMyActivitySummary);
 router.get("/me/questions", auth, getMyQuestions);
 router.get("/me/answers", auth, getMyAnswers);
 

@@ -1542,6 +1542,56 @@ textarea {
   font-size: 1.8rem;
 }
 
+.activity-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.activity-stat {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.activity-stat-primary {
+  border-color: rgba(37, 99, 235, 0.22);
+  background: var(--color-primary-soft);
+}
+
+.activity-stat-label,
+.activity-stat-note {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.activity-stat-label {
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.activity-stat strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.65rem;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.activity-stat-note {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
 .activity-tabs {
   display: flex;
   gap: 8px;
@@ -1620,6 +1670,10 @@ textarea {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .activity-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .page-hero {
     flex-direction: column;
   }

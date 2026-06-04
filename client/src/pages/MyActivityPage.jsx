@@ -14,6 +14,7 @@ function MyActivityPage() {
   const [activeTab, setActiveTab] = useState("questions");
   const [myQuestions, setMyQuestions] = useState([]);
   const [myAnswers, setMyAnswers] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [faqConfig, setFaqConfig] = useState({
     faqMinViews: 100,
@@ -32,8 +33,64 @@ function MyActivityPage() {
   }, []);
 
   useEffect(() => {
-    loadActivity();
+    let cancelled = false;
+
+    API.get("/users/me/activity-summary")
+      .then((res) => {
+        if (!cancelled) {
+          setSummary(res.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const request =
+      activeTab === "questions"
+        ? API.get("/users/me/questions")
+        : API.get("/users/me/answers");
+
+    request
+      .then((res) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (activeTab === "questions") {
+          setMyQuestions(res.data.data);
+        } else {
+          setMyAnswers(res.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [activeTab]);
+
+  const loadSummary = async () => {
+    try {
+      const res = await API.get("/users/me/activity-summary");
+      setSummary(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const loadActivity = async () => {
     setLoading(true);
@@ -59,7 +116,7 @@ function MyActivityPage() {
     }
 
     await API.delete(`/questions/${questionId}`);
-    loadActivity();
+    await Promise.all([loadActivity(), loadSummary()]);
   };
 
   const deleteAnswer = async (answerId) => {
@@ -68,8 +125,21 @@ function MyActivityPage() {
     }
 
     await API.delete(`/answers/${answerId}`);
-    loadActivity();
+    await Promise.all([loadActivity(), loadSummary()]);
   };
+
+  const stats = summary || {
+    spPoints: user?.spPoints ?? 0,
+    badge: user?.badge || "Beginner",
+    questionsCount: myQuestions.length,
+    answersCount: myAnswers.length,
+    acceptedAnswersCount: 0,
+    answerUpvotesReceived: 0,
+    questionUpvotesReceived: 0,
+    questionViews: 0,
+  };
+
+  const formatStat = (value) => Number(value || 0).toLocaleString();
 
   return (
     <div className="container page activity-page">
@@ -86,18 +156,57 @@ function MyActivityPage() {
         </Link>
       </header>
 
+      <section className="activity-summary" aria-label="Activity statistics">
+        <div className="activity-stat activity-stat-primary">
+          <span className="activity-stat-label">SP Points</span>
+          <strong>{formatStat(stats.spPoints)}</strong>
+          <span className="activity-stat-note">{stats.badge}</span>
+        </div>
+        <div className="activity-stat">
+          <span className="activity-stat-label">Questions</span>
+          <strong>{formatStat(stats.questionsCount)}</strong>
+          <span className="activity-stat-note">
+            {formatStat(stats.questionViews)} views
+          </span>
+        </div>
+        <div className="activity-stat">
+          <span className="activity-stat-label">Answers</span>
+          <strong>{formatStat(stats.answersCount)}</strong>
+          <span className="activity-stat-note">
+            {formatStat(stats.acceptedAnswersCount)} accepted
+          </span>
+        </div>
+        <div className="activity-stat">
+          <span className="activity-stat-label">Upvotes</span>
+          <strong>
+            {formatStat(
+              stats.answerUpvotesReceived + stats.questionUpvotesReceived
+            )}
+          </strong>
+          <span className="activity-stat-note">
+            {formatStat(stats.answerUpvotesReceived)} on answers
+          </span>
+        </div>
+      </section>
+
       <div className="activity-tabs">
         <button
           type="button"
           className={`activity-tab ${activeTab === "questions" ? "active" : ""}`}
-          onClick={() => setActiveTab("questions")}
+          onClick={() => {
+            setLoading(true);
+            setActiveTab("questions");
+          }}
         >
           My Questions
         </button>
         <button
           type="button"
           className={`activity-tab ${activeTab === "answers" ? "active" : ""}`}
-          onClick={() => setActiveTab("answers")}
+          onClick={() => {
+            setLoading(true);
+            setActiveTab("answers");
+          }}
         >
           My Answers
         </button>
